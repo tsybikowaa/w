@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Controls;
+
+namespace IRPO
+{
+    class EventModer
+    {
+        private string timeOfDay;
+        public EventModer(string timeOfDay)
+        {
+            this.timeOfDay = GetTimeOfDay();
+        }
+
+        public void GreetUser(TextBox TB_Privet)
+        {
+            TB_Privet.Text = $"{timeOfDay}, ";
+        }
+
+        private string GetTimeOfDay()
+        {
+            string timeOfDay = "";
+            DateTime currentTime = DateTime.Now;
+
+            if (currentTime.TimeOfDay >= new TimeSpan(9, 0, 0) && currentTime.TimeOfDay <= new TimeSpan(11, 0, 0))
+            {
+                timeOfDay = "Доброе утро";
+            }
+            else if (currentTime.TimeOfDay > new TimeSpan(11, 0, 0) && currentTime.TimeOfDay <= new TimeSpan(18, 0, 0))
+            {
+                timeOfDay = "Добрый день";
+            }
+            else if (currentTime.TimeOfDay > new TimeSpan(18, 0, 0))
+            {
+                timeOfDay = "Добрый вечер";
+            }
+
+            return timeOfDay;
+        }
+    }
+    
+}

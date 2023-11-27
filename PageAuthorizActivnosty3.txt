@@ -1,0 +1,252 @@
+<Page x:Class="Activnosty3.PageAuthoriz"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Activnosty3"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      mc:Ignorable="d" 
+      d:DesignHeight="500" d:DesignWidth="800"
+      Title="Авторизация" Background="White">
+
+    <Grid>
+        <StackPanel>
+            <Image Source="C:\Users\tsybi\source\repos\Activnosty3\Activnosty3\Фото\logo.png" Width="65" Height="70"/>
+            
+            <StackPanel  Orientation="Horizontal" Height="50">
+
+                <TextBox materialDesign:HintAssist.Hint="Введите логин" Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                         x:Name="LoginTextBox1"
+                         FontFamily="Comic Sans MS"                    
+                         FontSize="18"  Width="140"
+                         HorizontalAlignment="Center"
+                         HorizontalContentAlignment="Center"
+                         BorderThickness="0"
+                         Height="50"
+                         Margin="330,0,0,0"  />
+                <Image Source="C:\Users\tsybi\source\repos\Activnosty3\Activnosty3\Фото\free-icon-user-1946429.png" Width="25" Margin="-370,15,0,0" Height="25"/>
+            </StackPanel>
+            
+            <Border
+                    Height="2"
+                    Background="#99ffff"
+                    Opacity="0.5"
+                     Margin="300,0,300,0"/>
+
+            <StackPanel Orientation="Horizontal"  Height="50" >
+                <TextBox  materialDesign:HintAssist.Hint="Введите пароль" Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                         x:Name="PassBox1" 
+                         FontFamily="Comic Sans MS"
+                         FontSize="18"  Width="140"
+                         HorizontalAlignment="Center"
+                         HorizontalContentAlignment="Center"                       
+                         BorderThickness="0"                       
+                         Height="50"
+                         Margin="330,0,0,0"  />
+                <Image Source="C:\Users\tsybi\source\repos\Activnosty3\Activnosty3\Фото\free-icon-lock-8472244.png" Width="25" Margin="-370,15,0,0" Height="25"/>
+            </StackPanel>
+            <Border
+                    Height="2"
+                    Background="#99ffff"
+                    Opacity="0.5"
+                    Margin="300,0,300,0"/>
+
+            <StackPanel Margin="0,30,0,0" Width="190" Height="70" HorizontalAlignment="Center">
+
+                <TextBox Height="70" HorizontalAlignment="Center" FontSize="45"
+                             FontStyle="Italic" Width="190" Name="textBox1" VerticalAlignment="Top"  FontFamily="Comic Sans MS"
+                             FontStretch="UltraCondensed" TextAlignment="Center" Foreground="#0000cc" Opacity="0.8" IsReadOnly="True">
+
+                    <TextBox.Background>
+                        <ImageBrush ImageSource="Фото/ForCap.jpg" Stretch="UniformToFill" />
+                    </TextBox.Background>
+                </TextBox>
+            </StackPanel>
+
+            <StackPanel  Orientation="Horizontal" Height="50">
+                <TextBox x:Name="TBVvod" 
+                        materialDesign:HintAssist.Hint="Введите текст с картинки" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                         FontFamily="Comic Sans MS"                  
+                         FontSize="18"  Width="230"
+                         HorizontalAlignment="Center"
+                         HorizontalContentAlignment="Center"         
+                         Height="50"
+                         Margin="285,0,0,0"
+                         BorderThickness="0"/>
+            </StackPanel>
+            <Border
+                    Height="2"
+                    Background="#99ffff"
+                    Opacity="0.5"
+                     Margin="290,0,290,0"/>
+        </StackPanel>
+
+        <Button Height="20" Margin="490,210,250,0" Name="button1" VerticalAlignment="Top" Width="20" Click="button1_Click"  >
+            <Button.Background>
+                <ImageBrush ImageSource="C:\Users\tsybi\source\repos\Activnosty3\Activnosty3\Фото\free-icon-repeat-sign-2626987.png" Stretch="Uniform"/>
+            </Button.Background>
+        </Button>
+
+        <Button x:Name="Autoriz" Width="200" Content= "Войти" HorizontalAlignment="Right" Margin="0,400,100,30" Click="Autoriz_Click" FontFamily="Comic Sans MS" Background="#0000cc" Foreground="White" />
+        <Button x:Name="Register" Width="200" Content= "Нет аккаунта?" HorizontalAlignment="Left"  Margin="100,400,0,30" Click="Register_Click" FontFamily="Comic Sans MS" Background="#0000cc" Foreground="White"/>
+
+       
+        <Frame x:Name="AutoFrame"></Frame>
+    </Grid>
+</Page>
+
+
+PageAuthoriz.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.Data;
+using System.Data.SqlClient;
+using System.Timers;
+using System.Windows.Threading;
+
+namespace Activnosty3
+{
+    /// <summary>
+    /// Логика взаимодействия для PageAuthoriz.xaml
+    /// </summary>
+    public partial class PageAuthoriz : Page
+    {
+
+        String pwd;
+        private int loginAttempts = 0;// используем переменную loginAttempts для отслеживания количества попыток входа.
+        //Если количество попыток входа достигает трех, мы запускаем таймер блокировки lockoutTimer. Если таймер запущен, мы выводим сообщение об ошибке и не даем пользователю продолжить.
+        private DispatcherTimer lockoutTimer = new DispatcherTimer();
+
+
+
+        public PageAuthoriz()
+        {
+            InitializeComponent();
+
+            lockoutTimer.Interval = TimeSpan.FromSeconds(10);
+            lockoutTimer.Tick += LockoutTimer_Tick;
+        }
+        
+        private void LockoutTimer_Tick(object sender, EventArgs e)
+        {
+            lockoutTimer.Stop();
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+
+            String allowchar = "";
+            allowchar = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
+            allowchar += "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,y,z";
+            allowchar += "1,2,3,4,5,6,7,8,9,0";
+            char[] a = { ',' };
+            String[] ar = allowchar.Split(a);
+            pwd = "";
+            string temp = "";
+            Random r = new Random();
+
+            for (int i = 0; i < 4; i++)
+
+            {
+
+                temp = ar[(r.Next(0, ar.Length))];
+
+                pwd += temp;
+
+            }
+
+            textBox1.Text = pwd;
+
+        }
+        private void Register_Click(object sender, RoutedEventArgs e)
+        {
+            AutoFrame.Content = new PageRegister((sender as Button).DataContext as Люди);
+        }
+
+        private void Autoriz_Click(object sender, RoutedEventArgs e)
+        {
+
+            App.Current.Resources["TextTest"] = LoginTextBox1.Text;
+
+            SqlConnection sqlCon = new SqlConnection(@"Data Source = LAPTOP-9LSSTQJA;  Initial Catalog=Sessia11; Integrated Security=True;");
+            try
+            {
+                sqlCon.Open();
+                string query = "SELECT COUNT(1) FROM Люди WHERE ФИО=@ФИО AND пароль=@пароль";
+                SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                sqlCmd.Parameters.AddWithValue("@ФИО", LoginTextBox1.Text);
+                sqlCmd.Parameters.AddWithValue("@пароль", PassBox1.Text);
+                int count = Convert.ToInt32(sqlCmd.ExecuteScalar());
+
+                if (lockoutTimer.IsEnabled)
+                {
+                    MessageBox.Show("Много неправельных попыток. Подождите 10 секунд.");
+                    return;
+                }
+
+                if (count == 1 && pwd == TBVvod.Text)
+                {
+
+                    loginAttempts = 0;
+                    MessageBox.Show("Успешно!");
+                    AutoFrame.Content = new PageModer();
+
+
+                }
+                else
+                {
+                    loginAttempts++;
+
+                    if (loginAttempts >= 3)
+                    {
+                        lockoutTimer.Start();
+                    }
+
+                    MessageBox.Show("Не верно!");
+                }
+            }
+            
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+
+
+            }
+            finally
+            {
+                sqlCon.Close();
+            }
+
+
+
+        }
+         //<Button x:Name="AutorizOrganiz" Width="200" Content= "Войти" HorizontalAlignment="Center"
+            //Margin="0,400,0,30" Click="AutorizOrganiz_Click" FontFamily="Comic Sans MS" Background="#0000cc" Foreground="White" />
+        //private void AutorizOrganiz_Click(object sender, RoutedEventArgs e)
+        //{
+        //    App.Current.Resources["TextTest"] = LoginTextBox1.Text; //ресурсы
+        //    AutoFrame.Content = new PageOrganiz();
+        //}
+
+     
+    }
+}
+
+
+    
+       
+
